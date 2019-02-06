@@ -3,7 +3,7 @@ from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import RandomForestRegressor, ExtraTreesRegressor, GradientBoostingRegressor
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.linear_model import BayesianRidge, Ridge, ElasticNet
-from xgboost import XGBRegressor
+# from xgboost import XGBRegressor
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -33,14 +33,10 @@ train['Item_Weight'].fillna((train['Item_Weight'].mean()), inplace=True)
 test['Item_Weight'].fillna((test['Item_Weight'].mean()), inplace=True)
 
 # reduce fat content to two categories
-train['Item_Fat_Content'] = train['Item_Fat_Content'].replace(
-    ['low fat', 'LF'], ['Low Fat', 'Low Fat'])
-train['Item_Fat_Content'] = train['Item_Fat_Content'].replace(['reg'], [
-                                                              'Regular'])
-test['Item_Fat_Content'] = test['Item_Fat_Content'].replace(
-    ['low fat', 'LF'], ['Low Fat', 'Low Fat'])
-test['Item_Fat_Content'] = test['Item_Fat_Content'].replace(['reg'], [
-                                                            'Regular'])
+train['Item_Fat_Content'] = train['Item_Fat_Content'].replace(['low fat', 'LF'], ['Low Fat', 'Low Fat'])
+train['Item_Fat_Content'] = train['Item_Fat_Content'].replace(['reg'], ['Regular'])
+test['Item_Fat_Content'] = test['Item_Fat_Content'].replace(['low fat', 'LF'], ['Low Fat', 'Low Fat'])
+test['Item_Fat_Content'] = test['Item_Fat_Content'].replace(['reg'], ['Regular'])
 
 # calculate establishment year
 train['Outlet_Establishment_Year'] = 2013 - train['Outlet_Establishment_Year']
@@ -50,8 +46,7 @@ train['Outlet_Size'].fillna('Small', inplace=True)
 test['Outlet_Size'].fillna('Small', inplace=True)
 
 # label encoding cate. var.
-col = ['Outlet_Size', 'Outlet_Location_Type',
-       'Outlet_Type', 'Item_Fat_Content']
+col = ['Outlet_Size', 'Outlet_Location_Type', 'Outlet_Type', 'Item_Fat_Content']
 test['Item_Outlet_Sales'] = 0
 
 combi = train.append(test)
@@ -79,7 +74,7 @@ X_train, X_test = train, test
 
 model_factory = [
     RandomForestRegressor(),
-    XGBRegressor(nthread=1),
+    # XGBRegressor(nthread=1),
     # MLPRegressor(),
     Ridge(),
     BayesianRidge(),
@@ -93,12 +88,11 @@ for model in model_factory:
     model.seed = 42
     num_folds = 3
 
-scores = cross_val_score(model, X_train, y_train,
+    scores = cross_val_score(model, X_train, y_train,
                          cv=num_folds, scoring='neg_mean_squared_error')
-score_description = " %0.2f (+/- %0.2f)" % (
-    np.sqrt(scores.mean()*-1), scores.std() * 2)
+    score_description = " %0.2f (+/- %0.2f)" % (np.sqrt(scores.mean()*-1), scores.std() * 2)
 
-print('{model:25} CV-5 RMSE: {score}'.format(
-    model=model.__class__.__name__,
-    score=score_description
-))
+    print('{model:25} CV-5 RMSE: {score}'.format(
+        model=model.__class__.__name__,
+        score=score_description
+    ))
